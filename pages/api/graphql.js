@@ -2,67 +2,63 @@ import { ApolloServer } from "@apollo/server";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import { gql } from "graphql-tag";
 import pool from "@/lib/db";
-// console.log("Imported pool:", { pool });
+
 const resolvers = {
   Query: {
     hello: () => "world",
     users: async () => {
-      const user = await pool("users").select("*");
-      return user;
+      const result = await pool.query('SELECT * FROM users');
+      return result.rows;
     },
     user: async (_, { id }) => {
-      return await pool("users").where({ id }).first();
+      const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+      return result.rows[0];
     },
     information: async () => {
-      return await pool("information").select("*");
+      const result = await pool.query('SELECT * FROM information');
+      return result.rows;
     },
     info: async (_, { id }) => {
-      return await pool("information").where({ id }).first();
+      const result = await pool.query('SELECT * FROM information WHERE id = $1', [id]);
+      return result.rows[0];
     },
     ordersdb: async () => {
-      try {
-        const result = await pool.query("SELECT * FROM ordersdb");
-        return result.rows;
-      } catch (err) {
-        console.error("Error querying ordersdb:", err);
-        throw new Error("Failed to fetch ordersdb");
-      }
+      const result = await pool.query('SELECT * FROM ordersdb');
+      return result.rows;
     },
     orderdb: async (_, { id }) => {
-      try {
-        const result = await pool.query(
-          "SELECT * FROM ordersdb WHERE id = $1",
-          [id]
-        );
-        return result.rows[0];
-      } catch (err) {
-        console.error("Error querying ordersdb:", err);
-        throw new Error("Failed to fetch orderdb");
-      }
+      const result = await pool.query('SELECT * FROM ordersdb WHERE id = $1', [id]);
+      return result.rows[0];
     },
     orders: async () => {
-      return await pool("orders").select("*");
+      const result = await pool.query('SELECT * FROM orders');
+      return result.rows;
     },
     order: async (_, { id }) => {
-      return await pool("orders").where({ id }).first();
+      const result = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+      return result.rows[0];
     },
     userDetails: async () => {
-      return await pool("user_details").select("*");
+      const result = await pool.query('SELECT * FROM user_details');
+      return result.rows;
     },
     userDetail: async (_, { id }) => {
-      return await pool("user_details").where({ id }).first();
+      const result = await pool.query('SELECT * FROM user_details WHERE id = $1', [id]);
+      return result.rows[0];
     },
     customers: async () => {
-      return await pool("customers").select("*");
+      const result = await pool.query('SELECT * FROM customers');
+      return result.rows;
     },
     customer: async (_, { id }) => {
-      return await pool("customers").where({ id }).first();
+      const result = await pool.query('SELECT * FROM customers WHERE id = $1', [id]);
+      return result.rows[0];
     },
   },
   Mutation: {
     createUser: async (_, { name, email }) => {
-      // const [user] = await db('users').insert({ name, email }).returning('*');
-      return "mutaion working";
+      await pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email]);
+      return "User created successfully";
     },
   },
 };
